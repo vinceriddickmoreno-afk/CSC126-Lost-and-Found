@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Dashboard - Lost & Found</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css">
+</head>
+<body>
+    <nav class="bg-white shadow sticky top-0 z-50 dark:bg-[#0a192f]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap justify-between items-center py-3">
+                <a href="index.html" class="text-2xl font-bold" style="color: var(--primary);">Lost&Found</a>
+                <div class="flex flex-wrap gap-2 sm:gap-4">
+                    <a href="dashboard.html" class="font-semibold" style="color: var(--primary);">Items</a>
+                    <a href="my-claims.html" class="hover:text-[var(--primary)]">My Claims</a>
+                    <a href="profile.html" class="hover:text-[var(--primary)]">Profile</a>
+                    <a href="admin.html" id="adminLink" style="display:none">Admin</a>
+                    <a href="#" onclick="logout()" class="text-red-600">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <h1 class="text-3xl font-bold">All Items</h1>
+            <button onclick="openAddModal()" class="btn-primary">+ Report Item</button>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3 mb-6">
+            <input type="text" id="searchInput" placeholder="Search..." class="flex-1 p-2 border rounded dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex flex-wrap gap-2">
+                <select id="categoryFilter" class="p-2 border rounded dark:bg-gray-800"><option value="">All Categories</option><option>Wallet</option><option>Electronics</option><option>Bag</option><option>Bottle</option><option>ID Card</option><option>Keys</option><option>Other</option></select>
+                <select id="statusFilter" class="p-2 border rounded dark:bg-gray-800"><option value="">All Status</option><option>lost</option><option>found</option><option>claimed</option><option>returned</option></select>
+                <button id="searchBtn" class="bg-indigo-600 text-white px-4 py-2 rounded">Search</button>
+                <button onclick="exportToCSV()" class="bg-green-600 text-white px-4 py-2 rounded">CSV</button>
+            </div>
+        </div>
+        <div id="itemsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <div id="pagination" class="flex justify-center mt-8 space-x-2 flex-wrap"></div>
+    </div>
+    <div id="itemModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full mx-auto max-h-[90vh] overflow-y-auto">
+            <h3 id="modalTitle" class="text-xl font-bold mb-4">Report Item</h3>
+            <form id="itemForm">
+                <div class="mb-3"><label for="itemTitle" class="block font-medium">Title *</label><input type="text" id="itemTitle" class="w-full p-2 border rounded dark:bg-gray-700" required></div>
+                <div class="mb-3"><label for="itemDescription" class="block font-medium">Description</label><textarea id="itemDescription" rows="3" class="w-full p-2 border rounded dark:bg-gray-700"></textarea></div>
+                <div class="mb-3"><label for="itemCategory" class="block font-medium">Category</label><select id="itemCategory" class="w-full p-2 border rounded dark:bg-gray-700"><option>Wallet</option><option>Electronics</option><option>Bag</option><option>Bottle</option><option>ID Card</option><option>Keys</option><option>Other</option></select></div>
+                <div class="mb-3"><label for="itemLocation" class="block font-medium">Location</label><input type="text" id="itemLocation" class="w-full p-2 border rounded dark:bg-gray-700"></div>
+                <div class="mb-3"><label for="itemStatus" class="block font-medium">Status</label><select id="itemStatus" class="w-full p-2 border rounded dark:bg-gray-700"><option value="lost">Lost</option><option value="found">Found</option></select></div>
+                <div class="mb-3"><label for="itemImage" class="block font-medium">Image</label><input type="file" id="itemImage" accept="image/*" class="w-full p-2 border rounded dark:bg-gray-700"></div>
+                <div class="flex justify-end gap-2 mt-4"><button type="button" onclick="saveItem()" class="btn-primary">Save</button><button type="button" onclick="closeModal()" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button></div>
+            </form>
+        </div>
+    </div>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (user.role === 'admin') document.getElementById('adminLink').style.display = 'inline-block';
+    </script>
+</body>
+</html>
