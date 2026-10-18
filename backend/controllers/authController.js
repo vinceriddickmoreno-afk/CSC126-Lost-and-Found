@@ -6,7 +6,6 @@ exports.register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    // 4. PASSWORD POLICY (Test 8)
     if (password.length < 8) {
       return res.status(400).json({ error: 'Password must be at least 8 characters' });
     }
