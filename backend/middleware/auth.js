@@ -1,22 +1,20 @@
 const jwt = require('jsonwebtoken');
 
 const authenticate = (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'No token provided' });
+    const header = req.headers.authorization;
+    if (!header || !header.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Authentication required' });
     }
-    const token = authHeader.split(' ')[1];
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
+        req.user = jwt.verify(header.slice(7), process.env.JWT_SECRET);
         next();
     } catch (err) {
-        return res.status(403).json({ error: 'Invalid token' });
+        return res.status(401).json({ error: 'Session expired' });
     }
 };
 
 const isAdmin = (req, res, next) => {
-    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+    if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin required' });
     next();
 };
 

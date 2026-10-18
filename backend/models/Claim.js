@@ -51,16 +51,14 @@ class Claim {
         });
     }
 
-    static async findAll(filters = {}) {
-        let sql = `SELECT c.*, i.title as item_title, u.name as claimant_name
-                   FROM claims c
-                   JOIN items i ON c.item_id = i.id
-                   JOIN users u ON c.claimant_id = u.id
-                   WHERE 1=1`;
-        const values = [];
-        if (filters.status) { sql += ` AND c.status = ?`; values.push(filters.status); }
-        sql += ` ORDER BY c.created_at DESC`;
-        const [rows] = await db.getPool().query(sql, values);
+    static async findAll() {
+        const [rows] = await db.getPool().query(
+            `SELECT c.*, i.title as item_title, u.name as claimant_name
+             FROM claims c
+             JOIN items i ON c.item_id = i.id
+             JOIN users u ON c.claimant_id = u.id
+             ORDER BY c.created_at DESC`
+        );
         return rows.map(c => {
             const claim = new Claim(c.id, c.item_id, c.claimant_id, c.message, c.contact_number, c.status, c.created_at);
             claim.itemTitle = c.item_title;
@@ -76,10 +74,6 @@ class Claim {
             await db.getPool().query('UPDATE items SET status = "returned" WHERE id = ?', [this.itemId]);
         }
         return this;
-    }
-
-    async delete() {
-        await db.getPool().query('DELETE FROM claims WHERE id = ?', [this.id]);
     }
 
     toJSON() {

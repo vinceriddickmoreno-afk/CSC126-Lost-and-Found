@@ -1,2 +1,95 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Profile</title><script src="https://cdn.tailwindcss.com"></script><link rel="stylesheet" href="css/global.css"></head>
-<body class="bg-[var(--bg-light)]"><div class="max-w-md mx-auto mt-20 p-6 bg-white dark:bg-gray-800 rounded shadow"><h2 class="text-2xl mb-4" style="color:var(--primary)">My Profile</h2><div class="mb-2"><label>Name</label><input type="text" id="name" class="w-full p-2 border rounded"></div><div class="mb-2"><label>Email</label><input type="email" id="email" class="w-full p-2 border rounded"></div><button onclick="updateProfile()" class="btn-primary w-full">Update Profile</button><hr class="my-4"><h3>Change Password</h3><div class="mb-2"><label>Old Password</label><input type="password" id="oldPassword" class="w-full p-2 border rounded"></div><div><label>New Password</label><input type="password" id="newPassword" class="w-full p-2 border rounded"></div><button onclick="changePassword()" class="btn-primary w-full mt-4">Change Password</button></div><script src="js/api.js"></script><script src="js/auth.js"></script><script>if(!localStorage.getItem('token'))location.href='login.html';async function updateProfile(){const name=document.getElementById('name').value,email=document.getElementById('email').value;await authAPI.updateProfile({name,email});alert('Profile updated');}async function changePassword(){const oldPassword=document.getElementById('oldPassword').value,newPassword=document.getElementById('newPassword').value;await authAPI.changePassword({oldPassword,newPassword});alert('Password changed');}async function loadProfile(){const user=await authAPI.getProfile();document.getElementById('name').value=user.name;document.getElementById('email').value=user.email;}loadProfile();</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile — CSU Lost &amp; Found</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="app-nav">
+    <div class="app-nav-inner">
+    <a href="index.html" class="app-brand">
+    <span class="app-brand-mark">
+        <img src="images/logo.png" alt="CSU Logo">
+    </span>
+    <span class="app-brand-text">CSU <span style="color:var(--csu-gold);">Lost&amp;Found</span></span>
+</a>
+        <div class="app-nav-links">
+            <a href="dashboard.html">Items</a>
+            <a href="my-claims.html">My Claims</a>
+            <a href="profile.html" class="active">Profile</a>
+            <a href="#" onclick="logout()" style="color:#dc2626;">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container" style="max-width:640px;">
+    <h1 style="font-size:1.75rem;margin-bottom:1.5rem;">My Profile</h1>
+
+    <div class="card mb-6">
+        <h3 style="margin-bottom:1rem;">Account Information</h3>
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+            <div>
+                <label class="field-label" for="name">Name</label>
+                <input type="text" id="name" class="input">
+            </div>
+            <div>
+                <label class="field-label" for="email">Email</label>
+                <input type="email" id="email" class="input">
+            </div>
+            <button onclick="saveProfile()" class="btn btn-primary">Update Profile</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 style="margin-bottom:1rem;">Change Password</h3>
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+            <div>
+                <label class="field-label" for="oldPassword">Current Password</label>
+                <input type="password" id="oldPassword" class="input">
+            </div>
+            <div>
+                <label class="field-label" for="newPassword">New Password</label>
+                <input type="password" id="newPassword" class="input">
+            </div>
+            <button onclick="savePassword()" class="btn btn-gold">Change Password</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/effects.js"></script>
+<script>
+    requireAuth();
+    async function load() {
+        try {
+            const u = await authAPI.getProfile();
+            document.getElementById('name').value = u.name;
+            document.getElementById('email').value = u.email;
+        } catch (e) { showToast(e.message, 'error'); }
+    }
+    async function saveProfile() {
+        try {
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const u = await authAPI.updateProfile({ name, email });
+            localStorage.setItem('user', JSON.stringify(u));
+            showToast('Profile updated');
+        } catch (e) { showToast(e.message, 'error'); }
+    }
+    async function savePassword() {
+        try {
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            await authAPI.changePassword({ oldPassword, newPassword });
+            showToast('Password changed');
+            document.getElementById('oldPassword').value = '';
+            document.getElementById('newPassword').value = '';
+        } catch (e) { showToast(e.message, 'error'); }
+    }
+    load();
+</script>
+</body>
+</html>

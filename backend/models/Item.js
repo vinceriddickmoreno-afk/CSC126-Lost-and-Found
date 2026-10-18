@@ -37,11 +37,7 @@ class Item {
         }
         if (filters.category) { sql += ` AND items.category = ?`; values.push(filters.category); }
         if (filters.status) { sql += ` AND items.status = ?`; values.push(filters.status); }
-        if (filters.userId) { sql += ` AND items.user_id = ?`; values.push(filters.userId); }
-        if (filters.dateFrom) { sql += ` AND items.date_reported >= ?`; values.push(filters.dateFrom); }
-        if (filters.dateTo) { sql += ` AND items.date_reported <= ?`; values.push(filters.dateTo); }
         sql += ` ORDER BY items.created_at DESC`;
-        if (filters.limit) sql += ` LIMIT ${parseInt(filters.limit)} OFFSET ${parseInt(filters.offset) || 0}`;
         const [rows] = await db.getPool().query(sql, values);
         return rows.map(i => new Item(i.id, i.title, i.description, i.category, i.location, i.date_reported, i.status, i.image_url, i.user_id, i.created_at));
     }

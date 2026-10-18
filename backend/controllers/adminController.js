@@ -1,50 +1,29 @@
 const db = require('../models/db');
 const Claim = require('../models/Claim');
 const User = require('../models/User');
-const Item = require('../models/Item');
 
 const getStats = async (req, res) => {
-    try {
-        const [totalItems] = await db.getPool().query('SELECT COUNT(*) as count FROM items');
-        const [totalClaims] = await db.getPool().query('SELECT COUNT(*) as count FROM claims');
-        const [pendingClaims] = await db.getPool().query('SELECT COUNT(*) as count FROM claims WHERE status = "pending"');
-        res.json({ totalItems: totalItems[0].count, totalClaims: totalClaims[0].count, pendingClaims: pendingClaims[0].count });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    const [items] = await db.getPool().query('SELECT COUNT(*) as c FROM items');
+    const [claims] = await db.getPool().query('SELECT COUNT(*) as c FROM claims');
+    const [pending] = await db.getPool().query('SELECT COUNT(*) as c FROM claims WHERE status="pending"');
+    res.json({ totalItems: items[0].c, totalClaims: claims[0].c, pendingClaims: pending[0].c });
 };
 
 const getAllClaims = async (req, res) => {
-    try {
-        const { status } = req.query;
-        const claims = await Claim.findAll({ status });
-        res.json(claims);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    const claims = await Claim.findAll();
+    res.json(claims);
 };
 
 const updateClaim = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { status } = req.body;
-        const claim = await Claim.findById(id);
-        if (!claim) return res.status(404).json({ error: 'Claim not found' });
-        await claim.updateStatus(status);
-        res.json(claim);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    const claim = await Claim.findById(req.params.id);
+    if (!claim) return res.status(404).json({ error: 'Not found' });
+    await claim.updateStatus(req.body.status);
+    res.json(claim);
 };
 
 const getAllUsers = async (req, res) => {
-    try {
-        const users = await User.findAll();
-        res.json(users);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    const users = await User.findAll();
+    res.json(users);
 };
 
-const deleteUser = async (req, res) => {
-    try {
-        const user = await User.findById(req.params.id);
-        if (!user) return res.status(404).json({ error: 'User not found' });
-        await user.delete();
-        res.json({ message: 'User deleted' });
-    } catch (err) { res.status(500).json({ error: err.message }); }
-};
-
-module.exports = { getStats, getAllClaims, updateClaim, getAllUsers, deleteUser };
+module.exports = { getStats, getAllClaims, updateClaim, getAllUsers };

@@ -2,29 +2,24 @@ const Item = require('../models/Item');
 
 const getAllItems = async (req, res) => {
     try {
-        const { search, category, status, page = 1, limit = 12, dateFrom, dateTo } = req.query;
-        const offset = (page - 1) * limit;
-        const filters = { search, category, status, dateFrom, dateTo, limit, offset };
-        const items = await Item.findAll(filters);
-        const [totalRows] = await require('../models/db').getPool().query('SELECT COUNT(*) as count FROM items');
-        res.json({ items, totalPages: Math.ceil(totalRows[0].count / limit), currentPage: parseInt(page) });
+        const { search, category, status } = req.query;
+        const items = await Item.findAll({ search, category, status });
+        res.json({ items, totalPages: 1, currentPage: 1 });
     } catch (err) { res.status(500).json({ error: err.message }); }
 };
 
 const getItemById = async (req, res) => {
-    try {
-        const item = await Item.findById(req.params.id);
-        if (!item) return res.status(404).json({ error: 'Item not found' });
-        res.json(item);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    const item = await Item.findById(req.params.id);
+    if (!item) return res.status(404).json({ error: 'Not found' });
+    res.json(item);
 };
 
 const createItem = async (req, res) => {
     try {
-        const { title, description, category, location, status, dateReported } = req.body;
+        const { title, description, category, location, status } = req.body;
         if (!title) return res.status(400).json({ error: 'Title required' });
         const image_url = req.file ? `/uploads/${req.file.filename}` : null;
-        const item = await Item.create({ title, description, category, location, dateReported, status, image_url, userId: req.user.id });
+        const item = await Item.create({ title, description, category, location, status, image_url, userId: req.user.id });
         res.status(201).json(item);
     } catch (err) { res.status(500).json({ error: err.message }); }
 };
@@ -32,9 +27,9 @@ const createItem = async (req, res) => {
 const updateItem = async (req, res) => {
     try {
         const item = await Item.findById(req.params.id);
-        if (!item) return res.status(404).json({ error: 'Item not found' });
+        if (!item) return res.status(404).json({ error: 'Not found' });
         if (item.userId !== req.user.id && req.user.role !== 'admin') return res.status(403).json({ error: 'Unauthorized' });
-        const updates = req.body;
+        const updates = { ...req.body };
         if (req.file) updates.image_url = `/uploads/${req.file.filename}`;
         const updated = await item.update(updates);
         res.json(updated);
@@ -44,10 +39,10 @@ const updateItem = async (req, res) => {
 const deleteItem = async (req, res) => {
     try {
         const item = await Item.findById(req.params.id);
-        if (!item) return res.status(404).json({ error: 'Item not found' });
+        if (!item) return res.status(404).json({ error: 'Not found' });
         if (item.userId !== req.user.id && req.user.role !== 'admin') return res.status(403).json({ error: 'Unauthorized' });
         await item.delete();
-        res.json({ message: 'Item deleted' });
+        res.json({ message: 'Deleted' });
     } catch (err) { res.status(500).json({ error: err.message }); }
 };
 

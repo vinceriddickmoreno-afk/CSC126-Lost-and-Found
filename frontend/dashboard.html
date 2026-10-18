@@ -1,65 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Dashboard - Lost & Found</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/global.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — CSU Lost &amp; Found</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-    <nav class="bg-white shadow sticky top-0 z-50 dark:bg-[#0a192f]">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-wrap justify-between items-center py-3">
-                <a href="index.html" class="text-2xl font-bold" style="color: var(--primary);">Lost&Found</a>
-                <div class="flex flex-wrap gap-2 sm:gap-4">
-                    <a href="dashboard.html" class="font-semibold" style="color: var(--primary);">Items</a>
-                    <a href="my-claims.html" class="hover:text-[var(--primary)]">My Claims</a>
-                    <a href="profile.html" class="hover:text-[var(--primary)]">Profile</a>
-                    <a href="admin.html" id="adminLink" style="display:none">Admin</a>
-                    <a href="#" onclick="logout()" class="text-red-600">Logout</a>
-                </div>
+    <nav class="app-nav">
+        <div class="app-nav-inner">
+<a href="index.html" class="app-brand">
+    <span class="app-brand-mark">
+        <img src="images/logo.png" alt="CSU Logo">
+    </span>
+    <span class="app-brand-text">CSU <span style="color:var(--csu-gold);">Lost&amp;Found</span></span>
+</a>
+            <div class="app-nav-links">
+                <a href="dashboard.html" class="active">Items</a>
+                <a href="my-claims.html">My Claims</a>
+                <a href="profile.html">Profile</a>
+                <a href="admin.html" id="adminLink" style="display:none;">Admin</a>
+                <a href="#" onclick="logout()" style="color:#dc2626;">Logout</a>
             </div>
         </div>
     </nav>
-    <div class="max-w-7xl mx-auto px-4 py-8">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <h1 class="text-3xl font-bold">All Items</h1>
-            <button onclick="openAddModal()" class="btn-primary">+ Report Item</button>
+
+    <div class="container">
+        <div class="flex flex-wrap"
+            style="justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+            <h1 style="font-size:1.75rem;">All Items</h1>
+            <button onclick="openAddModal()" class="btn btn-primary">+ Report Item</button>
         </div>
-        <div class="flex flex-col sm:flex-row gap-3 mb-6">
-            <input type="text" id="searchInput" placeholder="Search..." class="flex-1 p-2 border rounded dark:bg-gray-800 dark:border-gray-700">
-            <div class="flex flex-wrap gap-2">
-                <select id="categoryFilter" class="p-2 border rounded dark:bg-gray-800"><option value="">All Categories</option><option>Wallet</option><option>Electronics</option><option>Bag</option><option>Bottle</option><option>ID Card</option><option>Keys</option><option>Other</option></select>
-                <select id="statusFilter" class="p-2 border rounded dark:bg-gray-800"><option value="">All Status</option><option>lost</option><option>found</option><option>claimed</option><option>returned</option></select>
-                <button id="searchBtn" class="bg-indigo-600 text-white px-4 py-2 rounded">Search</button>
-                <button onclick="exportToCSV()" class="bg-green-600 text-white px-4 py-2 rounded">CSV</button>
-            </div>
+
+        <div class="flex flex-wrap gap-3 mb-6">
+            <input type="text" id="searchInput" class="input" placeholder="Search..." style="flex:1;min-width:200px;">
+            <select id="categoryFilter" class="select" style="max-width:180px;">
+                <option value="">All Categories</option>
+                <option>Wallet</option>
+                <option>Electronics</option>
+                <option>Bag</option>
+                <option>Bottle</option>
+                <option>ID Card</option>
+                <option>Keys</option>
+                <option>Other</option>
+            </select>
+            <select id="statusFilter" class="select" style="max-width:160px;">
+                <option value="">All Status</option>
+                <option>lost</option>
+                <option>found</option>
+                <option>claimed</option>
+                <option>returned</option>
+            </select>
+            <button id="searchBtn" class="btn btn-primary">Search</button>
+            <button onclick="exportToCSV()" class="btn btn-ghost">📥 CSV</button>
         </div>
-        <div id="itemsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        <div id="pagination" class="flex justify-center mt-8 space-x-2 flex-wrap"></div>
+
+        <div id="itemsContainer" class="grid grid-items"></div>
     </div>
-    <div id="itemModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full mx-auto max-h-[90vh] overflow-y-auto">
-            <h3 id="modalTitle" class="text-xl font-bold mb-4">Report Item</h3>
-            <form id="itemForm">
-                <div class="mb-3"><label for="itemTitle" class="block font-medium">Title *</label><input type="text" id="itemTitle" class="w-full p-2 border rounded dark:bg-gray-700" required></div>
-                <div class="mb-3"><label for="itemDescription" class="block font-medium">Description</label><textarea id="itemDescription" rows="3" class="w-full p-2 border rounded dark:bg-gray-700"></textarea></div>
-                <div class="mb-3"><label for="itemCategory" class="block font-medium">Category</label><select id="itemCategory" class="w-full p-2 border rounded dark:bg-gray-700"><option>Wallet</option><option>Electronics</option><option>Bag</option><option>Bottle</option><option>ID Card</option><option>Keys</option><option>Other</option></select></div>
-                <div class="mb-3"><label for="itemLocation" class="block font-medium">Location</label><input type="text" id="itemLocation" class="w-full p-2 border rounded dark:bg-gray-700"></div>
-                <div class="mb-3"><label for="itemStatus" class="block font-medium">Status</label><select id="itemStatus" class="w-full p-2 border rounded dark:bg-gray-700"><option value="lost">Lost</option><option value="found">Found</option></select></div>
-                <div class="mb-3"><label for="itemImage" class="block font-medium">Image</label><input type="file" id="itemImage" accept="image/*" class="w-full p-2 border rounded dark:bg-gray-700"></div>
-                <div class="flex justify-end gap-2 mt-4"><button type="button" onclick="saveItem()" class="btn-primary">Save</button><button type="button" onclick="closeModal()" class="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button></div>
+
+    <div id="itemModal" class="modal-overlay">
+        <div class="modal-panel">
+            <h3 id="modalTitle" style="margin-bottom:1.25rem;">Report Item</h3>
+            <form id="itemForm" style="display:flex;flex-direction:column;gap:1rem;">
+                <div>
+                    <label class="field-label" for="itemTitle">Title *</label>
+                    <input type="text" id="itemTitle" class="input" required>
+                </div>
+                <div>
+                    <label class="field-label" for="itemDescription">Description</label>
+                    <textarea id="itemDescription" rows="3" class="textarea"></textarea>
+                </div>
+                <div>
+                    <label class="field-label" for="itemCategory">Category</label>
+                    <select id="itemCategory" class="select">
+                        <option>Wallet</option>
+                        <option>Electronics</option>
+                        <option>Bag</option>
+                        <option>Bottle</option>
+                        <option>ID Card</option>
+                        <option>Keys</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label" for="itemLocation">Location</label>
+                    <input type="text" id="itemLocation" class="input">
+                </div>
+                <div>
+                    <label class="field-label" for="itemStatus">Status</label>
+                    <select id="itemStatus" class="select">
+                        <option value="lost">Lost</option>
+                        <option value="found">Found</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label" for="itemImage">Image</label>
+                    <input type="file" id="itemImage" accept="image/*" class="input">
+                </div>
+                <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem;">
+                    <button type="button" onclick="closeModal()" class="btn btn-ghost">Cancel</button>
+                    <button type="button" onclick="saveItem()" class="btn btn-primary">Save</button>
+                </div>
             </form>
         </div>
     </div>
+
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/dashboard.js"></script>
+    <script src="js/effects.js"></script>
     <script>
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (user.role === 'admin') document.getElementById('adminLink').style.display = 'inline-block';
+        const u = getCurrentUser();
+        if (u && u.role === 'admin') document.getElementById('adminLink').style.display = 'inline-block';
     </script>
 </body>
+
 </html>
