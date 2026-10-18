@@ -1,80 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CSU Lost &amp; Found</title>
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <title>CSU Lost & Found</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<nav class="app-nav">
-    <div class="app-nav-inner">
-    <a href="index.html" class="app-brand">
-    <span class="app-brand-mark">
-        <img src="images/logo.png" alt="CSU Logo">
-    </span>
-    <span class="app-brand-text">CSU <span style="color:var(--csu-gold);">Lost&amp;Found</span></span>
-</a>
-        <div class="app-nav-links">
+    <div class="liquid-bg">
+        <div class="liquid-blob b1"></div>
+        <div class="liquid-blob b2"></div>
+        <div class="liquid-blob b3"></div>
+        <div class="liquid-blob b4"></div>
+    </div>
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <img src="images/logo.png" alt="Logo">
+            CSU Lost & Found
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="active">Home</a>
             <a href="dashboard.html">Items</a>
-            <a href="my-claims.html">Claims</a>
-            <a href="profile.html">Profile</a>
-            <a href="admin.html" id="adminLink" style="display:none;">Admin</a>
             <a href="login.html">Login</a>
             <a href="register.html" class="btn btn-primary btn-sm">Register</a>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<section class="container" style="padding:4rem 1.25rem;text-align:center;max-width:900px;">
-<img src="images/logo.png" alt="CSU Logo" style="width: 140px; height: auto; margin: 0 auto 1.5rem; display: block;">
-         Caraga State University · Main Campus
-    </div>
-    <h1 style="font-size:clamp(2.25rem,5.5vw,3.75rem);font-weight:800;line-height:1.05;letter-spacing:-.03em;margin-bottom:1.25rem;">
-        <span style="background:var(--gradient-brand);-webkit-background-clip:text;background-clip:text;color:transparent;">Never lose your stuff</span><br>
-        on campus again.
-    </h1>
-    <p style="color:var(--text-muted);font-size:1.05rem;max-width:600px;margin:0 auto 2rem;">
-        Report lost belongings, browse found items, and claim what's yours. Built for the CSU community.
-    </p>
-    <div style="display:flex;justify-content:center;gap:.75rem;flex-wrap:wrap;">
-        <a href="dashboard.html" class="btn btn-primary">Browse Items →</a>
-        <a href="register.html" class="btn btn-ghost">Create account</a>
-    </div>
-</section>
-
-<section class="container grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));max-width:1000px;">
-    <div class="card">
-        <div style="font-size:1.75rem;margin-bottom:.75rem;">📢</div>
-        <h3 style="font-size:1.05rem;margin-bottom:.35rem;">Report Items</h3>
-        <p style="color:var(--text-muted);font-size:.9rem;">Post lost or found items with photo uploads.</p>
-    </div>
-    <div class="card">
-        <div style="font-size:1.75rem;margin-bottom:.75rem;">🔍</div>
-        <h3 style="font-size:1.05rem;margin-bottom:.35rem;">Smart Search</h3>
-        <p style="color:var(--text-muted);font-size:.9rem;">Filter by category, location, and status.</p>
-    </div>
-    <div class="card">
-        <div style="font-size:1.75rem;margin-bottom:.75rem;">🛡️</div>
-        <h3 style="font-size:1.05rem;margin-bottom:.35rem;">Secure</h3>
-        <p style="color:var(--text-muted);font-size:.9rem;">JWT auth, hashed passwords, rate-limited.</p>
-    </div>
-</section>
-
-<footer style="text-align:center;padding:3rem 1rem;color:var(--text-muted);font-size:.85rem;">
-    © 2026 Caraga State University · IT106 Final Project
-</footer>
-
-<script src="js/api.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/effects.js"></script>
-<script>
-    const u = getCurrentUser();
-    if (u && u.role === 'admin') document.getElementById('adminLink').style.display = 'inline-block';
-    if (isLoggedIn()) {
-        document.querySelectorAll('a[href="login.html"]').forEach(a => { a.href = 'dashboard.html'; a.textContent = 'Dashboard'; });
-        document.querySelectorAll('a[href="register.html"]').forEach(a => a.style.display = 'none');
-    }
-</script>
+    <main class="hero-container">
+        <div class="hero-content glass">
+            <div class="badge">Caraga State University - Main Campus</div>
+            <h1 class="hero-title">
+                Lost something<br>
+                <span class="gradient-text">on campus again?</span>
+            </h1>
+            <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 1.1rem;">
+                Report lost belongings, browse found items, and claim what's yours. 
+                A smarter, faster way to reunite the CSU community with their valuables.
+            </p>
+            <div style="display: flex; justify-content: center; gap: 1rem;">
+                <a href="dashboard.html" class="btn btn-secondary">Browse Items</a>
+                <a href="register.html" class="btn btn-primary">Create Account</a>
+            </div>
+        </div>
+    </main>
 </body>
 </html>

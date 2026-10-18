@@ -1,12 +1,17 @@
 const express = require('express');
-const { authenticate, isAdmin } = require('../middleware/auth');
-const { getStats, getAllClaims, updateClaim, getAllUsers } = require('../controllers/adminController');
 const router = express.Router();
+const { getStats, getAllClaims, updateClaim } = require('../controllers/adminController');
+const auth = require('../middleware/auth');
 
-router.use(authenticate, isAdmin);
+const isAdmin = (req, res, next) => {
+    if (req.user && req.user.role === 'admin') next();
+    else res.status(403).json({ error: 'Admin access required' });
+};
+
+router.use(auth, isAdmin);
+
 router.get('/stats', getStats);
 router.get('/claims', getAllClaims);
 router.put('/claims/:id', updateClaim);
-router.get('/users', getAllUsers);
 
 module.exports = router;

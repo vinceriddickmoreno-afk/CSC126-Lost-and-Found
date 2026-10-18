@@ -1,9 +1,8 @@
 const express = require('express');
-const { createClaim, getUserClaims } = require('../controllers/claimController');
-const { authenticate } = require('../middleware/auth');
 const router = express.Router();
+const { createClaim } = require('../controllers/claimController');
+const auth = require('../middleware/auth');
 
-router.post('/', authenticate, createClaim);
-router.get('/my-claims', authenticate, getUserClaims);
+router.post('/', auth, createClaim);
 
 module.exports = router;

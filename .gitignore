@@ -1,13 +1,17 @@
+# Node.js
 node_modules/
 npm-debug.log
-package-lock.json
+
+# Environment Variables (KEEP PASSWORDS SECRET)
 .env
-.env.*
-!.env.example
-backend/uploads/*
-!backend/uploads/.gitkeep
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-*.log
+.env.local
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Uploads (Optional: prevents uploading user images)
+backend/uploads/

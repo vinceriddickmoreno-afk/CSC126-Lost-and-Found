@@ -1,36 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login — CSU Lost &amp; Found</title>
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <title>Login - CSU Lost & Found</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="auth-wrap">
-    <div class="auth-card">
-        <div class="auth-title">
-            <h1>Welcome back</h1>
-            <p>Sign in to CSU Lost &amp; Found</p>
+    <div class="liquid-bg"><div class="liquid-blob b1"></div><div class="liquid-blob b2"></div></div>
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand"><img src="images/logo.png" alt="Logo"> CSU Lost & Found</a>
+    </nav>
+    <div class="auth-wrap">
+        <div class="auth-card glass">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Welcome Back</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Log In</button>
+            </form>
+            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
+                No account? <a href="register.html">Register here</a>
+            </p>
         </div>
-        <form id="loginForm" class="auth-form">
-            <div>
-                <label class="field-label" for="email">Email</label>
-                <input type="email" id="email" class="input" placeholder="you@csu.edu.ph" required>
-            </div>
-            <div>
-                <label class="field-label" for="password">Password</label>
-                <input type="password" id="password" class="input" placeholder="••••••••" required>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:.5rem;">Sign In</button>
-        </form>
-        <p style="text-align:center;margin-top:1.25rem;font-size:.88rem;color:var(--text-muted);">
-            No account? <a href="register.html" style="font-weight:600;">Create one</a>
-        </p>
     </div>
-</div>
-<script src="js/api.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/effects.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 </html>

@@ -2,83 +2,50 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
-const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const authRoutes = require('./routes/authRoutes');
 const itemRoutes = require('./routes/itemRoutes');
 const claimRoutes = require('./routes/claimRoutes');
-const adminRoutes = require('./routes/adminRoutes');
-const db = require('./models/db');
+const adminRoutes = require('./routes/adminRoutes'); // <-- IMPORTED
 
 const app = express();
-app.disable('x-powered-by');
 
-// Ensure uploads folder exists
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
-
-// Security headers
-app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: 'cross-origin' } }));
-
-// Body parser
-app.use(express.json({ limit: '2mb' }));
-
-// CORS
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:5500', 'http://127.0.0.1:5500'];
 app.use(cors({
-    origin: (origin, cb) => {
-        if (!origin) return cb(null, true);
-        if (allowedOrigins.includes(origin)) return cb(null, true);
-        cb(new Error('Not allowed by CORS'));
-    },
-    credentials: true
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Blocked by CORS policy'));
+        }
+    }
 }));
 
-// Serve uploaded images
-app.use('/uploads', express.static(uploadDir));
+app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Root route
-app.get('/', (req, res) => res.json({ status: 'ok', service: 'Lost and Found API' }));
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { error: 'Too many login attempts, please try again after 15 minutes' }
+});
+app.use('/api/auth/login', loginLimiter);
 
-// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/claims', claimRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/admin', adminRoutes); // <-- CONNECTED
 
-// 404 handler for unknown routes
-app.use((req, res) => res.status(404).json({ error: 'Endpoint not found' }));
-
-// Error handler (MUST BE LAST)
 app.use((err, req, res, next) => {
-    console.error('[ERROR]', err.message);
-
-    if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(413).json({ error: 'File too large (max 3 MB)' });
+    console.error("Server Error:", err.message);
+    if (err.message === 'Blocked by CORS policy') {
+        return res.status(403).json({ error: 'CORS blocked' });
     }
-    if (err.message && err.message.includes('Only JPG')) {
+    if (err.name === 'MulterError' || err.message.includes('Only images')) {
         return res.status(400).json({ error: err.message });
     }
-    if (err.message && err.message.includes('CORS')) {
-        return res.status(403).json({ error: 'Origin not allowed' });
-    }
-    if (err.name === 'MulterError') {
-        return res.status(400).json({ error: err.message });
-    }
-
-    res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Internal server error' });
 });
 
-// Start server
-const PORT = process.env.PORT || 5000;
-db.getPool().getConnection()
-    .then(() => {
-        console.log('✅ Database connected');
-        console.log(`📡 Listening on port ${PORT}`);
-        app.listen(PORT, () => console.log(`🚀 Server on http://localhost:${PORT}`));
-    })
-    .catch(err => {
-        console.error('❌ Database connection failed:', err.message);
-        process.exit(1);
-    });
+app.listen(5000, () => console.log('✅ Secure Backend running on port 5000'));

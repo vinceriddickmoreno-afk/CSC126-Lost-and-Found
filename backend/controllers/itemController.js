@@ -1,49 +1,90 @@
 const Item = require('../models/Item');
+const { exec } = require('child_process');
+const path = require('path');
+const fs = require('fs');
 
-const getAllItems = async (req, res) => {
-    try {
-        const { search, category, status } = req.query;
-        const items = await Item.findAll({ search, category, status });
-        res.json({ items, totalPages: 1, currentPage: 1 });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+exports.getAllItems = async (req, res, next) => {
+  try {
+    const items = await Item.findAll();
+    res.json({ items });
+  } catch (err) { 
+    next(err); 
+  }
 };
 
-const getItemById = async (req, res) => {
-    const item = await Item.findById(req.params.id);
-    if (!item) return res.status(404).json({ error: 'Not found' });
-    res.json(item);
+exports.createItem = async (req, res, next) => {
+  try {
+    let { title, description, location, category, status } = req.body;
+    let image_url = null;
+
+    if (req.file) {
+      const rawImagePath = req.file.path; 
+      const processedFilename = `processed-${req.file.filename}`;
+      const processedImagePath = path.join(__dirname, '..', 'uploads', processedFilename);
+      
+      const pythonScript = path.join(__dirname, '..', 'python_cv', 'image_processor.py');
+      const pythonExecutable = path.join(__dirname, '..', '..', '.venv', 'Scripts', 'python.exe');
+
+      console.log("🤖 Running Python CV Analysis...");
+
+      // We capture the output from Python here
+      const cvDescription = await new Promise((resolve) => {
+        exec(`"${pythonExecutable}" "${pythonScript}" "${rawImagePath}" "${processedImagePath}"`, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`Python Error: ${error.message}`);
+            resolve(null); 
+          } else {
+            // Remove any trailing newlines from the python output
+            resolve(stdout.trim()); 
+          }
+        });
+      });
+
+      if (fs.existsSync(processedImagePath)) {
+        image_url = `/uploads/${processedFilename}`;
+        fs.unlinkSync(rawImagePath); 
+      } else {
+        image_url = `/uploads/${req.file.filename}`; 
+      }
+
+      // IF the user didn't type a description, use the AI's description!
+      if (!description || description.trim() === '') {
+        description = cvDescription 
+          ? `System Detected: ${cvDescription}` 
+          : "An item was uploaded.";
+      } else {
+        // If they typed one, append the AI's description
+        description = `${description} (System Detected: ${cvDescription})`;
+      }
+    }
+    
+    const item = await Item.create({ 
+      user_id: req.user.id, title, description, location, category, status, image_url 
+    });
+    
+    res.status(201).json({ message: 'Item created and image analyzed', item });
+  } catch (err) { 
+    next(err); 
+  }
 };
 
-const createItem = async (req, res) => {
-    try {
-        const { title, description, category, location, status } = req.body;
-        if (!title) return res.status(400).json({ error: 'Title required' });
-        const image_url = req.file ? `/uploads/${req.file.filename}` : null;
-        const item = await Item.create({ title, description, category, location, status, image_url, userId: req.user.id });
-        res.status(201).json(item);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+exports.deleteItem = async (req, res, next) => {
+  try {
+    const itemId = req.params.id;
+    const userId = req.user.id;
+    const db = require('../config/db');
+    
+    const [items] = await db.getPool().query('SELECT * FROM items WHERE id = ?', [itemId]);
+    const item = items[0];
+    
+    if (!item) return res.status(404).json({ error: 'Item not found' });
+    if (item.user_id !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'You can only delete your own items' });
+    }
+    
+    await db.getPool().query('DELETE FROM items WHERE id = ?', [itemId]);
+    res.json({ message: 'Item deleted' });
+  } catch (err) { 
+    next(err); 
+  }
 };
-
-const updateItem = async (req, res) => {
-    try {
-        const item = await Item.findById(req.params.id);
-        if (!item) return res.status(404).json({ error: 'Not found' });
-        if (item.userId !== req.user.id && req.user.role !== 'admin') return res.status(403).json({ error: 'Unauthorized' });
-        const updates = { ...req.body };
-        if (req.file) updates.image_url = `/uploads/${req.file.filename}`;
-        const updated = await item.update(updates);
-        res.json(updated);
-    } catch (err) { res.status(500).json({ error: err.message }); }
-};
-
-const deleteItem = async (req, res) => {
-    try {
-        const item = await Item.findById(req.params.id);
-        if (!item) return res.status(404).json({ error: 'Not found' });
-        if (item.userId !== req.user.id && req.user.role !== 'admin') return res.status(403).json({ error: 'Unauthorized' });
-        await item.delete();
-        res.json({ message: 'Deleted' });
-    } catch (err) { res.status(500).json({ error: err.message }); }
-};
-
-module.exports = { getAllItems, getItemById, createItem, updateItem, deleteItem };

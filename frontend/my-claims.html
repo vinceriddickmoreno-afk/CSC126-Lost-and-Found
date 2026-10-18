@@ -1,44 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Claims — CSU Lost &amp; Found</title>
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <title>My Claims - CSU Lost & Found</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<nav class="app-nav">
-    <div class="app-nav-inner">
-    <a href="index.html" class="app-brand">
-    <span class="app-brand-mark">
-        <img src="images/logo.png" alt="CSU Logo">
-    </span>
-    <span class="app-brand-text">CSU <span style="color:var(--csu-gold);">Lost&amp;Found</span></span>
-</a>
-        <div class="app-nav-links">
+    <div class="liquid-bg"><div class="liquid-blob b3"></div><div class="liquid-blob b4"></div></div>
+    <nav class="navbar">
+        <a href="dashboard.html" class="nav-brand"><img src="images/logo.png" alt="Logo"> CSU Lost & Found</a>
+        <div class="nav-links">
             <a href="dashboard.html">Items</a>
             <a href="my-claims.html" class="active">My Claims</a>
-            <a href="profile.html">Profile</a>
-            <a href="#" onclick="logout()" style="color:#dc2626;">Logout</a>
+            <a href="#" id="logoutBtn" style="color: #fca5a5;">Logout</a>
         </div>
+    </nav>
+    <div class="container">
+        <h1 style="margin-bottom: 2rem;">My Claims</h1>
+        <div class="grid" id="claimsContainer"><p>Loading...</p></div>
     </div>
-</nav>
-
-<div class="container">
-    <h1 style="font-size:1.75rem;margin-bottom:1.5rem;">My Claims</h1>
-    <div class="table-wrap">
-        <table>
-            <thead>
-                <tr><th>ID</th><th>Item</th><th>Location</th><th>Message</th><th>Status</th></tr>
-            </thead>
-            <tbody id="claimsTableBody"></tbody>
-        </table>
-    </div>
-</div>
-
-<script src="js/api.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/claims.js"></script>
-<script src="js/effects.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/claims.js"></script>
 </body>
 </html>

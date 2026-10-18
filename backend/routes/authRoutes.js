@@ -1,14 +1,11 @@
 const express = require('express');
-const { register, login, refresh, getProfile, updateProfile, changePassword } = require('../controllers/authController');
-const { authenticate } = require('../middleware/auth');
-const { loginLimiter, registerLimiter } = require('../middleware/security');
 const router = express.Router();
+const { register, login, profile } = require('../controllers/authController');
+const auth = require('../middleware/auth');
 
-router.post('/register', registerLimiter, register);
-router.post('/login', loginLimiter, login);   // <-- THIS was missing
-router.post('/refresh', refresh);
-router.get('/profile', authenticate, getProfile);
-router.put('/profile', authenticate, updateProfile);
-router.put('/change-password', authenticate, changePassword);
+// Siguraduhon nato nga register ug login ang tawgon
+router.post('/register', register);
+router.post('/login', login);
+router.get('/profile', auth, profile);
 
 module.exports = router;

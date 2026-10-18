@@ -1,26 +1,19 @@
-async function loadMyClaims() {
+document.addEventListener('DOMContentLoaded', async () => {
+    if (!TokenStore.access) return window.location.href = 'login.html';
+    document.getElementById('logoutBtn')?.addEventListener('click', (e) => { e.preventDefault(); TokenStore.clear(); window.location.href = 'login.html'; });
+    
+    const container = document.getElementById('claimsContainer');
     try {
-        const claims = await claimsAPI.getMyClaims();
-        const tb = document.getElementById('claimsTableBody');
-        if (!tb) return;
-        if (!claims.length) {
-            tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted);">No claims yet</td></tr>';
-            return;
-        }
-        tb.innerHTML = claims.map(c => `
-            <tr>
-                <td>${c.id}</td>
-                <td>${c.itemTitle || '-'}</td>
-                <td>${c.itemLocation || '-'}</td>
-                <td>${c.message || '-'}</td>
-                <td><span class="pill pill-${c.status}">${c.status}</span></td>
-            </tr>`).join('');
-    } catch (err) { console.error(err); }
-}
+        const data = await claimsAPI.getMine();
+        const claims = data.claims || [];
+        if (!claims.length) return container.innerHTML = '<p>You have no claims yet.</p>';
 
-if (document.getElementById('claimsTableBody')) {
-    document.addEventListener('DOMContentLoaded', () => {
-        requireAuth();
-        loadMyClaims();
-    });
-}
+        container.innerHTML = claims.map(c => `
+            <div class="card glass">
+                <h3>${c.itemTitle || 'Item'}</h3>
+                <p><strong>Message:</strong> ${c.message}</p>
+                <p><strong>Contact:</strong> ${c.contact_number}</p>
+                <div style="margin-top: 1rem;"><span class="pill pill-${c.status.toLowerCase()}">${c.status}</span></div>
+            </div>`).join('');
+    } catch (err) { container.innerHTML = `<p style="color: red;">Error: ${err.message}</p>`; }
+});
